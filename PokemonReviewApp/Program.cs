@@ -13,7 +13,8 @@ builder.Services.AddSwaggerGen();
 
 //Dependency Injection
 builder.Services.AddScoped<IPokemonRepository, PokemonRepository>();
-
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ICountryRepository, CountryRepository>();
 
 
 builder.Services.AddDbContext<DataContext>(options =>
