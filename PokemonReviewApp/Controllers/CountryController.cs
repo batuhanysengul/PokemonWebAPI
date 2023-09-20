@@ -23,7 +23,7 @@ namespace PokemonReviewApp.Controllers
         {
             var countries = _countryRepository.GetCountries();
 
-            if(!ModelState.IsValid) 
+            if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             return Ok(countries);
         }
@@ -54,5 +54,7 @@ namespace PokemonReviewApp.Controllers
                 return BadRequest(ModelState);
             return Ok(country);
         }
+
+        [HttpGet("{ownerId}/pokemon)")]
     }
 }
