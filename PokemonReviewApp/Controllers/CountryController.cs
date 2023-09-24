@@ -54,7 +54,5 @@ namespace PokemonReviewApp.Controllers
                 return BadRequest(ModelState);
             return Ok(country);
         }
-
-        [HttpGet("{ownerId}/pokemon)")]
     }
 }
