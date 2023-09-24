@@ -64,7 +64,7 @@ namespace PokemonReviewApp.Controllers
         [HttpPost]
         [ProducesResponseType(204)]
         [ProducesResponseType(400)]
-        public IActionResult CreateReview([FromBody] ReviewDto reviewCreate)
+        public IActionResult CreateReview([FromQuery] int reviewerId, [FromQuery] int pokeId, [FromBody] ReviewDto reviewCreate)
         {
             if (reviewCreate == null)
                 return BadRequest(ModelState);
