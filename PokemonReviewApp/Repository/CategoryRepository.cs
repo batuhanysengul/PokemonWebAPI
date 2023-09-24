@@ -34,5 +34,21 @@ namespace PokemonReviewApp.Repository
             //using nested entity 
             return _context.PokemonCategories.Where(e => e.CategoryId == categoryId).Select(c => c.Pokemon).ToList();
         }
+        
+        //post & create
+        public bool CreateCategory(Category category)
+        {
+            //change tracker = (add, update, modify vs bunları trackliyor Add kullanıldığında)
+            //EntityState.Added gördüğünde disconnected state olduğunu anla. Denk gelirsen öğren çok önemli değil
+            _context.Add(category);
+            return Save();
+            
+        }
+
+        public bool Save()
+        {
+            var saved = _context.SaveChanges();
+            return saved > 0 ? true : false;
+        }
     }
 }

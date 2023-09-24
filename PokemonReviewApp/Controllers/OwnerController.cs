@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using PokemonReviewApp.Dto;
 using PokemonReviewApp.Interfaces;
 using PokemonReviewApp.Models;
 using PokemonReviewApp.Repository;
@@ -10,16 +12,20 @@ namespace PokemonReviewApp.Controllers
     public class OwnerController : Controller
     {
         private readonly IOwnerRepository _ownerRepository;
-        public OwnerController(IOwnerRepository ownerRepository)
+        private readonly IMapper _mapper;
+
+        public OwnerController(IOwnerRepository ownerRepository, IMapper mapper)
         {
             _ownerRepository = ownerRepository;
+            _mapper = mapper;
         }
 
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Owner>))]
         public IActionResult GetOwners()
         {
-            var owners = _ownerRepository.GetOwners();
+            var owners = _mapper.Map<List<OwnerDto>>(_ownerRepository.GetOwners());
+
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -34,7 +40,7 @@ namespace PokemonReviewApp.Controllers
             if (!_ownerRepository.OwnerExists(ownerId))
                 return NotFound();
 
-            var owner = _ownerRepository.GetOwner(ownerId);
+            var owner = _mapper.Map<OwnerDto>(_ownerRepository.GetOwner(ownerId));
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -49,7 +55,8 @@ namespace PokemonReviewApp.Controllers
             if(!_ownerRepository.OwnerExists(ownerId))
                 return NotFound();
 
-            var owner = _ownerRepository.GetOwner(ownerId);
+            var owner = _mapper.Map<List<PokemonDto>>(
+                 _ownerRepository.GetPokemonByOwner(ownerId));
 
             if (!ModelState.IsValid) return BadRequest();
             return Ok(owner);

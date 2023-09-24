@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using PokemonReviewApp.Dto;
 using PokemonReviewApp.Interfaces;
 using PokemonReviewApp.Models;
 using PokemonReviewApp.Repository;
@@ -10,10 +12,12 @@ namespace PokemonReviewApp.Controllers
     public class CategoryController : Controller //Controller BadRequest vs. getiriyor
     {
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IMapper _mapper;
 
-        public CategoryController(ICategoryRepository categoryRepository)
+        public CategoryController(ICategoryRepository categoryRepository, IMapper mapper)
         {
             _categoryRepository = categoryRepository;
+            _mapper = mapper;
         }
 
 
@@ -21,7 +25,7 @@ namespace PokemonReviewApp.Controllers
         [ProducesResponseType(200, Type = typeof(IEnumerable<Category>))]
         public IActionResult GetCategories()
         {
-            var categories = _categoryRepository.GetCategories();
+            var categories = _mapper.Map<List<CategoryDto>>(_categoryRepository.GetCategories());
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -37,7 +41,7 @@ namespace PokemonReviewApp.Controllers
             if (!_categoryRepository.CategoryExists(categoryId))
                 return NotFound();
 
-            var category = _categoryRepository.GetCategory(categoryId);
+            var category = _mapper.Map<CategoryDto>(_categoryRepository.GetCategory(categoryId));
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -50,12 +54,49 @@ namespace PokemonReviewApp.Controllers
         [ProducesResponseType(400)]
         public IActionResult GetPokemonByCategoryId(int categoryId)
         {
-            var pokemons = _categoryRepository.GetPokemonByCategory(categoryId);
+            var pokemons = _mapper.Map<List<PokemonDto>>(
+               _categoryRepository.GetPokemonByCategory(categoryId));
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             return Ok(pokemons);
+        }
+
+        // post & create
+
+        [HttpPost]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        public IActionResult CreateCategory([FromBody] Category categoryCreate)
+        {
+            if(categoryCreate == null)
+                return BadRequest(ModelState);
+
+            var category = _categoryRepository.GetCategories()
+                .Where(c => c.Name.Trim().ToUpper() == categoryCreate.Name.TrimEnd().ToUpper())
+                .FirstOrDefault();
+
+            if(category != null)
+            {
+                ModelState.AddModelError("", "Category already exists");
+                return StatusCode(422, ModelState);
+            }
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var categoryMap = _mapper.Map<Category>(categoryCreate);
+
+            if (!_categoryRepository.CreateCategory(categoryMap))
+            {
+                ModelState.AddModelError("", "Something went wrong while saving");
+                return StatusCode(500, ModelState);
+
+            }
+
+            return Ok("Succesfully created");
+
         }
 
     }

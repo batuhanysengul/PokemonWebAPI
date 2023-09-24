@@ -8,5 +8,10 @@ namespace PokemonReviewApp.Interfaces
         Category GetCategory(int id);
         ICollection<Pokemon> GetPokemonByCategory(int categoryId); //nested entity
         bool CategoryExists(int id);
+
+        //post & create
+        bool CreateCategory(Category category);
+        bool Save();
+
     }
 }
